@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.6.12 <0.9.0;
+
+contract RentaVehiculos{
+    struct Vehicle {
+        address owner;
+        string name;
+        uint256 id;
+        bool available;
+    }
+    
+    mapping(uint256 => Vehicle)public vehicles;
+    uint256 public totalVehicles;
+    
+    event RentVehicle (uint256 indexed id, address indexed renter);
+
+    function rentVehicle(uint256 _id) public {
+        require(!vehicles[_id].available, "Vehicle isn't available for rent");
+        vehicles[_id].available = false;
+        emit RentVehicle(_id, msg.sender);
+    }
+    function returnVehicle(uint256 _id) public {
+        require(!vehicles[_id].available,"Vehicle isn't rented");
+        require(vehicles[_id].owner == msg.sender, "Only renter can return the vehicle");
+        vehicles[_id].available = true;
+    }
+    struct ClientAccount{
+        address ethAcc;
+    }
+    ClientAccount[] public clients;
+
+    mapping(address => bool) public isClientRegistered;
+
+    function registerClient(address _walletAddress) public {
+        require(!isClientRegistered[_walletAddress], "Client is already registered");
+        isClientRegistered[_walletAddress] = true;
+        clients.push(ClientAccount(_walletAddress));
+    }
+}
